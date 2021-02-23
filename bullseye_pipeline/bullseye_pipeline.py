@@ -31,8 +31,8 @@ def create_bullseye_pipeline(scans_dir, work_dir, outputdir, subject_ids, name='
                 "ANNOT_RH": "{subject_id}/label/rh.aparc.annot",
                 "WHITE_LH": "{subject_id}/surf/lh.white",
                 "WHITE_RH": "{subject_id}/surf/rh.white",
-                "PIAL_LH": "{subject_id}/surf/lh.pial.T1",
-                "PIAL_RH": "{subject_id}/surf/rh.pial.T1",
+                "PIAL_LH": "{subject_id}/surf/lh.pial",
+                "PIAL_RH": "{subject_id}/surf/rh.pial",
                 "subject_id": "{subject_id}"}
 
     fileselector = pe.Node(SelectFiles(template), name='fileselect')

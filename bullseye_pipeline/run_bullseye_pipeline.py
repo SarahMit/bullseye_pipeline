@@ -10,11 +10,82 @@ from nipype import config, logging
 import os, sys,glob
 import argparse
 from itertools import chain
+from shutil import copyfile
+
 
 def bullseye_workflow(scans_dir, work_dir, outputdir, subject_ids, wfname='bullseye'):
     wf = create_bullseye_pipeline(scans_dir, work_dir, outputdir, subject_ids, wfname)
     wf.inputs.inputnode.subject_ids = subject_ids
     return wf
+
+def rename_files(scans_dir):
+    for folder in [name for name in os.listdir(scans_dir) if os.path.isdir(os.path.join(scans_dir, name))]:
+
+        # create backup of lh.pial file in lh.pial.backup
+        if os.path.exists(os.path.join(scans_dir, folder, "surf", "lh.pial")) and \
+                not os.path.exists(os.path.join(scans_dir, folder, "surf", "lh.pial.backup")):
+            print("create backup of ", os.path.join(scans_dir, folder, "surf", "lh.pial"), "called lh.pial.backup")
+            copyfile(os.path.join(scans_dir, folder, "surf", "lh.pial"),
+                     os.path.join(scans_dir, folder, "surf", "lh.pial.backup"))
+
+        # create backup of lh.pial.T1 file in lh.pial.T1.backup
+        if os.path.exists(os.path.join(scans_dir, folder, "surf", "lh.pial.T1")) and \
+                not os.path.exists(os.path.join(scans_dir, folder, "surf", "lh.pial.T1.backup")):
+            print("create backup of ", os.path.join(scans_dir, folder, "surf", "lh.pial.T1"), "called lh.pial.T1.backup")
+            copyfile(os.path.join(scans_dir, folder, "surf", "lh.pial.T1"),
+                     os.path.join(scans_dir, folder, "surf", "lh.pial.T1.backup"))
+
+        # copy backup of rh.pial.T1 file to lh.pial
+        if os.path.exists(os.path.join(scans_dir, folder, "surf", "lh.pial.T1.backup")) and \
+            os.path.exists(os.path.join(scans_dir, folder, "surf", "lh.pial.backup")):
+            print("use ", os.path.join(scans_dir, folder, "surf", "lh.pial.T1.backup"), "to replace lh.pial for running bullseye pipeline")
+            copyfile(os.path.join(scans_dir, folder, "surf", "lh.pial.T1.backup"),
+                     os.path.join(scans_dir, folder, "surf", "lh.pial"))
+
+        # create backup of rh.pial file in rh.pial.backup
+        if os.path.exists(os.path.join(scans_dir, folder, "surf", "rh.pial")) and \
+                not os.path.exists(os.path.join(scans_dir, folder, "surf", "rh.pial.backup")):
+            print("create backup of ", os.path.join(scans_dir, folder, "surf", "rh.pial"), "called rh.pial.backup")
+            copyfile(os.path.join(scans_dir, folder, "surf", "rh.pial"),
+                     os.path.join(scans_dir, folder, "surf", "rh.pial.backup"))
+
+        # create backup of rh.pial.T1 file in rh.pial.T1.backup
+        if os.path.exists(os.path.join(scans_dir, folder, "surf", "rh.pial.T1")) and \
+                not os.path.exists(os.path.join(scans_dir, folder, "surf", "rh.pial.T1.backup")):
+            print("create backup of ", os.path.join(scans_dir, folder, "surf", "lh.pial"), "called rh.pial.T1.backup")
+            copyfile(os.path.join(scans_dir, folder, "surf", "rh.pial.T1"),
+                     os.path.join(scans_dir, folder, "surf", "rh.pial.T1.backup"))
+
+        # copy backup of rh.pial.T1 file to rh.pial
+        if os.path.exists(os.path.join(scans_dir, folder, "surf", "rh.pial.T1.backup")) and \
+            os.path.exists(os.path.join(scans_dir, folder, "surf", "rh.pial.backup")):
+            print("use ", os.path.join(scans_dir, folder, "surf", "rh.pial.T1.backup"), "to replace rh.pial for running bullseye pipeline")
+            copyfile(os.path.join(scans_dir, folder, "surf", "rh.pial.T1.backup"),
+                     os.path.join(scans_dir, folder, "surf", "rh.pial"))
+
+
+def rerename_files(scans_dir):
+    for folder in [name for name in os.listdir(scans_dir) if os.path.isdir(os.path.join(scans_dir, name))]:
+        # restore backed up files lh.pial, lh.pial.T1, rh.pial, rh.pial.T1
+        if os.path.exists(os.path.join(scans_dir, folder, "surf", "lh.pial.backup")):
+            print("restore original state of", os.path.join(scans_dir, folder, "surf", "lh.pial"))
+            copyfile(os.path.join(scans_dir, folder, "surf", "lh.pial.backup"),
+                     os.path.join(scans_dir, folder, "surf", "lh.pial"))
+
+        if os.path.exists(os.path.join(scans_dir, folder, "surf", "lh.pial.T1.backup")):
+            print("restore original state of", os.path.join(scans_dir, folder, "surf", "lh.pial.T1"))
+            copyfile(os.path.join(scans_dir, folder, "surf", "lh.pial.T1.backup"),
+                      os.path.join(scans_dir, folder, "surf", "lh.pial.T1"))
+
+        if os.path.exists(os.path.join(scans_dir, folder, "surf", "rh.pial.backup")):
+            print("restore original state of", os.path.join(scans_dir, folder, "surf", "rh.pial"))
+            copyfile(os.path.join(scans_dir, folder, "surf", "rh.pial.backup"),
+                     os.path.join(scans_dir, folder, "surf", "rh.pial"))
+
+        if os.path.exists(os.path.join(scans_dir, folder, "surf", "rh.pial.T1.backup")):
+            print("restore original state of", os.path.join(scans_dir, folder, "surf", "rh.pial.T1"))
+            copyfile(os.path.join(scans_dir, folder, "surf", "rh.pial.T1.backup"),
+                      os.path.join(scans_dir, folder, "surf", "rh.pial.T1"))
 
 
 def main():
@@ -82,7 +153,7 @@ def main():
     #config.enable_debug_mode()
     logging.update_logging(config)
     
-
+    rename_files(scans_dir)
     bullseye_pipeline = bullseye_workflow(scans_dir, work_dir, output_dir, subject_ids, wfname='bullseye')
 
     # Visualize workflow
@@ -90,7 +161,7 @@ def main():
         bullseye_pipeline.write_graph(graph2use='colored', simple_form=True)
 
     bullseye_pipeline.run(plugin='MultiProc', plugin_args={'n_procs' : args.processes})
-
+    rerename_files(scans_dir)
 
     print('Done bullseye pipeline!!!')
 
