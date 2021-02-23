@@ -1,5 +1,5 @@
 # adjustments
-The pipeline was developed using Python 2.7 and FreeSurfer 6. To make it run with FreeSurfer 7 a quickfix was included and it is important to ensure the pipeline uses Python 2.7.
+The original pipeline was developed using Python 2.7 and FreeSurfer 6. To make it run with FreeSurfer 7 a quickfix was included and it is important to ensure the pipeline uses Python 2.7. See _setup_instructions.txt_ to find out how I got it running.
 
 The qickfix is a workaround because changing the internal workflow of the pipeline might be rather elaborate. FreeSurfer 7 uses `.pial.T1` files but the pipeline expects `.pial` files since FreeSurfer 6 provided them. In this adaption of the pipeline the files are getting internally renamed.
 
