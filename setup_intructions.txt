@@ -1,0 +1,199 @@
+Install Freesurfer on Windows:
+- This feature doesn’t work on the 32-bit version of Windows 10, so ensure you’re using the 64-bit version of Windows.
+- you need about 500 Mb of free storage to install a linux distribution of your choice (Mb numbers may vary)
+- additionally you need 10GB Gb of free storage for freesurfer and its dependencies
+
+
+
+1) Install Windows Subsystem for Linux
+https://docs.microsoft.com/en-us/windows/wsl/install-win10#manual-installation-steps
+
+- open powershell with admin privileges
+- execute 
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+
+
+2) update to WSL 2
+https://docs.microsoft.com/en-us/windows/wsl/install-win10#manual-installation-steps
+
+- check for version number (windows+r and execute "winver")
+	- For x64 systems: Version 1903 or higher, with Build 18362 or higher.
+	- For ARM64 systems: Version 2004 or higher, with Build 19041 or higher.
+	- Builds lower than 18362 do not support WSL 2. Use the Windows Update Assistant to update your version of Windows or ignore updating to WSL 2.
+
+- Enable virtual machine
+	- open powershell with admin privileges
+	- enter:
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
+- Download the package
+https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi
+
+- run install
+
+- activate wsl2 and set as default:
+	- open powershell with admin privileges
+	- enter
+wsl --set-default-version 2
+
+- Restart
+
+
+3) Install your favorite Linux from the microsoft store. 
+
+- here is the link for ubuntu 20.04: 
+https://www.microsoft.com/en-gb/p/ubuntu-2004-lts/9n6svws3rx71?rtc=1&activetab=pivot:overviewtab
+
+- Restart your PC
+
+
+4) Install Freesurfer 6
+https://surfer.nmr.mgh.harvard.edu/fswiki/rel6downloads
+
+- open the freshly installed linux subsystem by starting ubuntu in the windows start menu
+
+- setup username and password
+
+- execute the following steps in the console. you can copy lines by right-clicking in the terminal
+
+- download freesurfer by entering
+wget https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
+
+- install freesurfer
+tar -xzvf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
+
+- remove freesurfer download to free up space
+rm freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz  
+
+- update apt-get
+sudo apt-get update && apt-get upgrade
+
+- install dependencies
+sudo apt-get -y install bc binutils libgomp1 perl psmisc sudo tar tcsh unzip uuid-dev vim-common libjpeg62-dev
+
+
+5) setup environment variables (needs to be done everytime a terminal is opened, can be included in the default setup file .bashrc [to be added here])
+
+- setup freesurfer environment variables
+
+export FREESURFER_HOME=~/freesurfer
+source $FREESURFER_HOME/SetUpFreeSurfer.sh
+
+- setup target folder, replace <path to subject data> with e.g. "/results" without the ""
+
+export SUBJECTS_DIR=<path to subject data>
+
+e.g.
+mkdir results
+export SUBJECTS_DIR=~/results
+
+
+- get a free freesurfer license
+
+https://surfer.nmr.mgh.harvard.edu/registration.html
+
+- the license will be emailed to you. copy its content and store it using the following commands
+
+- open a text editor in the linux bash
+nano
+
+- right click to copy the content
+
+- ctrl+O to store the file
+
+- enter
+freesurfer/license.txt
+
+- exit using ctrl+X
+
+- your freesurfer installation should be ready to go
+
+
+5) Use Freesurfer on a NIFTI file:
+https://surfer.nmr.mgh.harvard.edu/fswiki/rel6downloads
+
+
+Example 1: Convert the sample-001.mgz to nifti format.
+could be skipped in case a nifti file exists already
+
+cp $FREESURFER_HOME/subjects/sample-001.mgz .
+mri_convert sample-001.mgz sample-001.nii.gz
+
+
+
+Example 2: Perform a full recon-all on the nifti file.
+
+- perform freesurfer operation, replace <name of subject> with e.g. "bert" without ""
+recon-all -i sample-001.nii.gz -s bert -all 
+recon-all -i FLAIR.nii.gz -s amsterdam -all 
+recon-all -s amsterdam -all 
+
+Example 4: View the output volumes, surfaces and subcortical segmentation of the fully recon-ed subject bert.  (bert may be replaced with anything you like as in the previous example)
+- may require the installation of a window manager (to be added if required)
+
+cd $SUBJECTS_DIR
+freeview -v \
+    bert/mri/T1.mgz \
+    bert/mri/wm.mgz \
+    bert/mri/brainmask.mgz \
+    bert/mri/aseg.mgz:colormap=lut:opacity=0.2 \
+    -f \
+    bert/surf/lh.white:edgecolor=blue \
+    bert/surf/lh.pial:edgecolor=red \
+    bert/surf/rh.white:edgecolor=blue \
+    bert/surf/rh.pial:edgecolor=red
+
+
+- the results can be accessed from windows by entering the following path in the explorer
+
+\\wsl$\<subsystem-name>\home\<user-name>\results\<subject-name>
+
+e.g. assuming you have installed "Ubuntu-20.04", your user is called "ernie" and your subject is called "bert"
+
+\\wsl$\Ubuntu-20.04\home\ernie\results\bert
+
+
+
+6) Install the Bullseye Parcellation package
+
+- Install Python 2.7 on WSL, accept the installation by trying out y or Y
+sudo apt-add-repository universe
+sudo apt update
+sudo apt install python2-minimal
+
+- check python version
+python2 -V
+
+- check that "python" is referring to "python2"
+
+python -V
+
+- if not select the correct number using
+
+sudo update-alternatives --config python
+
+- install pip for python2
+
+sudo apt update
+sudo apt install curl
+curl https://bootstrap.pypa.io/2.7/get-pip.py --output get-pip.py
+sudo python get-pip.py
+rm get-pip.py
+
+- install dependencies of the bullseye pipeline
+
+sudo apt-get install build-essential libssl-dev libffi-dev python-dev
+sudo python -m pip install nibabel nipype numpy scipy
+
+- download and extract the bullseye pipeline
+
+wget https://github.com/gsanroma/bullseye_pipeline/archive/master.zip
+unzip -q master.zip -d .
+rm master.zip
+cd bullseye_pipeline-master
+sudo python setup.py install
+
+We are done!
+
+╰(*°▽°*)╯
+
