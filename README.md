@@ -1,4 +1,9 @@
-# bullseye pipeline
+# Adjustments
+The pipeline was developed using Python 2.7 and FreeSurfer 6. To make it run with FreeSurfer 7 a quickfix was included and it is important to ensure the pipeline uses Python 2.7.
+
+The qickfix is a workaround because changing the internal workflow of the pipeline might be rather elaborate. FreeSurfer 7 uses `.pial.T1` files but the pipeline expects `.pial` files since FreeSurfer 6 provided them. In this adaption of the pipeline the files are getting internally renamed.
+
+# originl bullseye pipeline
 Pipeline for creating a _bullseye parcellation_ of the cerebral whiter matter using part of the FreeSurfer output and commands.
 It provides an (anatomy-independent) spatial localization based on an radial component (ie, lobes) and a depth component.
 It can be used to obtain region-specific quantification of white matter parameters (eg, a similar approach has been used to quantify regional white matter hyperintensity load in [this](https://link.springer.com/chapter/10.1007/978-3-030-00919-9_10) and [this](https://doi.org/10.1016/j.neurad.2017.10.001) papers). 
